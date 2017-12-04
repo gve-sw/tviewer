@@ -37,7 +37,7 @@ Compile project
 Run
 * ./bin/tviewer
 
-There is a docker file in the repo that you can use to build a container if you like
+There is a docker file in the repo that you can use as example to build a container if you like
 
 ## Current Limitations
 
