@@ -26,6 +26,10 @@ var (
 )
 
 func Startup(templates map[string]*template.Template, r *mux.Router) {
+	// Create cert directory if doesn't exist
+
+	_ = os.Mkdir(basePath + "/certs", os.ModePerm)
+
 	// Create the channel
 	telemetryChan := make(chan model.TelemetryWrapper)
 
