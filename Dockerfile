@@ -1,16 +1,14 @@
 FROM golang:latest
 
-WORKDIR /go/src/github.com/sfloresk/tviewer
+WORKDIR /go
 COPY . .
 
 run export GOBIN=/go/bin/ && \
-    go get github.com/gorilla/mux && \
-    go get github.com/nleiva/xrgrpc && \
-    go install /go/src/github.com/sfloresk/tviewer/main.go
-
+    go get github.com/sfloresk/tviewer && \
+    go install github.com/sfloresk/tviewer
 
 EXPOSE 9090
 
 WORKDIR /go/
 
-CMD ["/go/bin/main"]
+CMD ["/go/bin/tviewer"]
