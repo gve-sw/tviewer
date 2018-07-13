@@ -23,7 +23,7 @@ From your go path:
 
 Get the code
 
-* go get github.com/sfloresk/tviewer
+* go get github.com/cisco-gve/tviewer
 
 Start the database as a container
 * docker run --name tviewerdb -p 27017:27017 -d mongo
