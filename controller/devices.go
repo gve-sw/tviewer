@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"encoding/json"
-	"github.com/sfloresk/tviewer/model"
+	"github.com/cisco-gve/tviewer/model"
 	"log"
 	"gopkg.in/mgo.v2"
 	"os"

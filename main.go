@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 	"io/ioutil"
-	"github.com/sfloresk/tviewer/controller"
+	"github.com/cisco-gve/tviewer/controller"
 	"log"
 )
 
@@ -24,7 +24,7 @@ func main() {
 
 func populateTemplates() map[string]*template.Template {
 	result := make(map[string]*template.Template)
-	const basePath = "src/github.com/sfloresk/tviewer/templates"
+	const basePath = "src/github.com/cisco-gve/tviewer/templates"
 	layout := template.Must(template.ParseFiles(basePath + "/_layout.html"))
 	template.Must(
 		layout.ParseFiles(basePath + "/_default_menu.html"))

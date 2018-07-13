@@ -4,8 +4,8 @@ WORKDIR /go
 COPY . .
 
 run export GOBIN=/go/bin/ && \
-    go get github.com/sfloresk/tviewer && \
-    go install github.com/sfloresk/tviewer
+    go get github.com/cisco-gve/tviewer && \
+    go install github.com/cisco-gve/tviewer
 
 EXPOSE 9090
 

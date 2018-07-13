@@ -32,7 +32,7 @@ Set database env variable
 * export TELEMETRY_DB=localhost
 
 Compile project
-* go install github.com/sfloresk/tviewer
+* go install github.com/cisco-gve/tviewer
 
 Run
 * ./bin/tviewer

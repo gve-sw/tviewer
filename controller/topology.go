@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"fmt"
 	"os"
-	"github.com/sfloresk/tviewer/model"
+	"github.com/cisco-gve/tviewer/model"
 	"encoding/json"
 	"log"
 	"github.com/gorilla/websocket"

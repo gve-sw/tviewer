@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	"github.com/sfloresk/tviewer/model"
+	"github.com/cisco-gve/tviewer/model"
 	"gopkg.in/mgo.v2"
 	"os"
 	"log"
 )
 
-const basePath = "src/github.com/sfloresk/tviewer"
+const basePath = "src/github.com/cisco-gve/tviewer"
 const ifSubscriptionID = "tviewerIFCS"
 const isisSubscriptionID = "tviewerISIS"
 const ifSensorGroupID = "tviewerInterfaces"
