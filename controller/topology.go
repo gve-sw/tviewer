@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 	"log"
 	"github.com/gorilla/websocket"
-	"github.com/go-fsnotify/fsnotify"
+	"github.com/fsnotify/fsnotify"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
