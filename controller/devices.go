@@ -1,22 +1,23 @@
 package controller
 
 import (
-	"html/template"
-	"net/http"
-	"github.com/gorilla/mux"
-	"encoding/json"
-	"github.com/cisco-gve/tviewer/model"
-	"log"
-	"gopkg.in/mgo.v2"
-	"os"
-	"gopkg.in/mgo.v2/bson"
-	"io/ioutil"
-	"flag"
 	"bytes"
+	"encoding/json"
+	"flag"
+	"html/template"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/cisco-gve/tviewer/model"
+	"github.com/gorilla/mux"
 	xr "github.com/nleiva/xrgrpc"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
-var templ = flag.String("bt", basePath + "/oc-templates/oc-telemetry.json", "Telemetry Config Template")
+var templ = flag.String("bt", BasePath+"/oc-templates/oc-telemetry.json", "Telemetry Config Template")
 
 // NeighborConfig uses asplain notation for AS numbers (RFC5396)
 type TelemetryConfig struct {
@@ -77,7 +78,7 @@ func (d devices) handleApiDevice(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		if (count > 0) {
+		if count > 0 {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Name " + device.Name + " already in use"))
 			return
@@ -91,7 +92,7 @@ func (d devices) handleApiDevice(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		if (count > 0) {
+		if count > 0 {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("IP " + device.Ip + " already in use"))
 			return
@@ -103,7 +104,7 @@ func (d devices) handleApiDevice(w http.ResponseWriter, r *http.Request) {
 		// Create certificate
 		content := []byte(device.Certificate)
 
-		err = ioutil.WriteFile(basePath + "/certs/" + device.Name + ".pem", content, 0644)
+		err = ioutil.WriteFile(BasePath+"/certs/"+device.Name+".pem", content, 0644)
 		if err != nil {
 			log.Print("Cannot create cert file:" + err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -116,8 +117,8 @@ func (d devices) handleApiDevice(w http.ResponseWriter, r *http.Request) {
 		router, err := xr.BuildRouter(
 			xr.WithUsername(device.Username),
 			xr.WithPassword(device.Password),
-			xr.WithHost(device.Ip + ":" + device.Port),
-			xr.WithCert(basePath + "/certs/" + device.Name + ".pem"),
+			xr.WithHost(device.Ip+":"+device.Port),
+			xr.WithCert(BasePath+"/certs/"+device.Name+".pem"),
 			xr.WithTimeout(15),
 		)
 		if err != nil {
@@ -129,17 +130,17 @@ func (d devices) handleApiDevice(w http.ResponseWriter, r *http.Request) {
 
 		// Define Telemetry parameters for interfaces
 		tConfigInterfaces := &TelemetryConfig{
-			SensorGroupID:         ifSensorGroupID,
-			Path:          "Cisco-IOS-XR-fib-common-oper:fib/nodes/node/protocols/protocol/vrfs/vrf/interface-infos/interface-info/interfaces/interface",
-			SubscriptionID:     ifSubscriptionID,
+			SensorGroupID:  ifSensorGroupID,
+			Path:           "Cisco-IOS-XR-fib-common-oper:fib/nodes/node/protocols/protocol/vrfs/vrf/interface-infos/interface-info/interfaces/interface",
+			SubscriptionID: ifSubscriptionID,
 			SampleInterval: sampleInterval,
 		}
 
 		// Define Telemetry parameters for ISIS
 		tConfigISIS := &TelemetryConfig{
-			SensorGroupID:         isisSensorGroupID,
-			Path:          "Cisco-IOS-XR-clns-isis-oper:isis/instances/instance/neighbors/neighbor",
-			SubscriptionID:     isisSubscriptionID,
+			SensorGroupID:  isisSensorGroupID,
+			Path:           "Cisco-IOS-XR-clns-isis-oper:isis/instances/instance/neighbors/neighbor",
+			SubscriptionID: isisSubscriptionID,
 			SampleInterval: sampleInterval,
 		}
 
@@ -180,7 +181,7 @@ func (d devices) handleApiDevice(w http.ResponseWriter, r *http.Request) {
 		buf1 = new(bytes.Buffer)
 		err = t.Execute(buf1, tConfigISIS)
 
-		_, err = xr.MergeConfig(ctx1, conn1, buf1.String(), id + 1)
+		_, err = xr.MergeConfig(ctx1, conn1, buf1.String(), id+1)
 		if err != nil {
 			log.Printf("failed to config %s: %v\n", router.Host, err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -192,7 +193,7 @@ func (d devices) handleApiDevice(w http.ResponseWriter, r *http.Request) {
 
 		n := Node{}
 		n.Ip = device.Ip
-		n.CertName = basePath + "/certs/" + device.Name + ".pem"
+		n.CertName = BasePath + "/certs/" + device.Name + ".pem"
 		n.Name = device.Name
 		n.Username = device.Username
 		n.Password = device.Password
@@ -225,7 +226,7 @@ func (d devices) handleApiDevice(w http.ResponseWriter, r *http.Request) {
 		enc := json.NewEncoder(w)
 		enc.Encode(devices)
 
-		break;
+		break
 	case "DELETE":
 		deviceName := r.URL.Query().Get("name")
 		// Open database
@@ -246,7 +247,7 @@ func (d devices) handleApiDevice(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Write([]byte("ok"))
 
-		break;
+		break
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		break

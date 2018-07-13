@@ -1,22 +1,22 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"html/template"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
-	"io/ioutil"
+
 	"github.com/cisco-gve/tviewer/controller"
-	"log"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 
-
 	r := mux.NewRouter()
 
 	templates := populateTemplates()
-
+	controller.BasePath = os.Getenv("GOPATH") + "/src/github.com/cisco-gve/tviewer"
 	controller.Startup(templates, r)
 	log.Println("Listening in http://0.0.0.0:9090/web/")
 	http.ListenAndServe(":9090", r)
@@ -24,7 +24,7 @@ func main() {
 
 func populateTemplates() map[string]*template.Template {
 	result := make(map[string]*template.Template)
-	const basePath = "src/github.com/cisco-gve/tviewer/templates"
+	basePath := os.Getenv("GOPATH") + "/src/github.com/cisco-gve/tviewer/templates"
 	layout := template.Must(template.ParseFiles(basePath + "/_layout.html"))
 	template.Must(
 		layout.ParseFiles(basePath + "/_default_menu.html"))

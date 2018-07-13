@@ -1,17 +1,18 @@
 package controller
 
 import (
-	"html/template"
-	"net/http"
-	"github.com/gorilla/mux"
-	"io/ioutil"
-	"fmt"
-	"os"
-	"github.com/cisco-gve/tviewer/model"
 	"encoding/json"
+	"fmt"
+	"html/template"
+	"io/ioutil"
 	"log"
-	"github.com/gorilla/websocket"
+	"net/http"
+	"os"
+
+	"github.com/cisco-gve/tviewer/model"
 	"github.com/fsnotify/fsnotify"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -36,7 +37,7 @@ func (t topology) handleTemplate(w http.ResponseWriter, r *http.Request) {
 func (t topology) handleTopology(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		raw, err := ioutil.ReadFile(basePath + "/model/topology.json")
+		raw, err := ioutil.ReadFile(BasePath + "/model/topology.json")
 		if err != nil {
 
 			fmt.Println(err.Error())
@@ -64,7 +65,7 @@ func (t topology) handleWSConnections(w http.ResponseWriter, r *http.Request) {
 	t.clients[ws] = true
 
 	// Trigger information to client
-	topology := t.createTopology();
+	topology := t.createTopology()
 	ws.WriteJSON(topology)
 }
 
@@ -88,7 +89,7 @@ func (t topology) watchTopologyChanges(telemetryChannel chan model.TelemetryWrap
 	for {
 		// Grab any message from the telemetry channel. If a new message arrives, topology has changed
 		_ = <-telemetryChannel
-		topology := t.createTopology();
+		topology := t.createTopology()
 		// TODO: Debug
 		fmt.Printf("Sending information to clients -> %v \n\n", topology)
 		// Send it out to every client that is currently connected
@@ -117,9 +118,9 @@ func (t topology) WatchTopologyFile() {
 			select {
 			case event := <-watcher.Events:
 				log.Println("event:", event)
-				if event.Op & fsnotify.Write == fsnotify.Write {
+				if event.Op&fsnotify.Write == fsnotify.Write {
 					log.Println("modified file:", event.Name)
-					raw, err := ioutil.ReadFile(basePath + "/model/topology.json")
+					raw, err := ioutil.ReadFile(BasePath + "/model/topology.json")
 					if err != nil {
 						fmt.Println(err.Error())
 						os.Exit(1)
@@ -134,14 +135,14 @@ func (t topology) WatchTopologyFile() {
 		}
 	}()
 
-	err = watcher.Add(basePath + "/model/")
+	err = watcher.Add(BasePath + "/model/")
 	if err != nil {
 		log.Fatal(err)
 	}
 	<-done
 }
 
-func (t topology) createTopology() ([]model.Node) {
+func (t topology) createTopology() []model.Node {
 	topology := make([]model.Node, 0)
 	// Build topology from database
 
@@ -161,34 +162,32 @@ func (t topology) createTopology() ([]model.Node) {
 	// Get all rows
 	dbCollection.Find(bson.M{}).All(&interfaces)
 
-
 	// Add nodes and interfaces
 	for i := range interfaces {
 		nodeExists := false
 		for j := range topology {
-			if (topology[j].Name == interfaces[i].NodeName) {
+			if topology[j].Name == interfaces[i].NodeName {
 				nodeExists = true
 				// Add interface to node
 				topology[j].Interfaces = append(topology[j].Interfaces,
 					model.Interface{
-						IPv4: interfaces[i].Ip,
-						Name: interfaces[i].Interface,
+						IPv4:           interfaces[i].Ip,
+						Name:           interfaces[i].Interface,
 						IsisNeighbours: make([]model.IsisNeighbor, 0),
 					})
 			}
 		}
-		if (!nodeExists) {
+		if !nodeExists {
 			// Add interface to node
 			newNode := model.Node{
-				Name:interfaces[i].NodeName,
+				Name:       interfaces[i].NodeName,
 				Interfaces: make([]model.Interface, 0),
-
 			}
 			topology = append(topology, newNode)
-			topology[len(topology) - 1].Interfaces = append(topology[len(topology) - 1].Interfaces,
+			topology[len(topology)-1].Interfaces = append(topology[len(topology)-1].Interfaces,
 				model.Interface{
-					IPv4: interfaces[i].Ip,
-					Name: interfaces[i].Interface,
+					IPv4:           interfaces[i].Ip,
+					Name:           interfaces[i].Interface,
 					IsisNeighbours: make([]model.IsisNeighbor, 0),
 				})
 		}
@@ -204,13 +203,13 @@ func (t topology) createTopology() ([]model.Node) {
 	// Add neighbours
 	for i := range isisNeighboursDb {
 		for j := range topology {
-			if (topology[j].Name == isisNeighboursDb[i].NodeName) {
+			if topology[j].Name == isisNeighboursDb[i].NodeName {
 				for k := range topology[j].Interfaces {
-					if (isisNeighboursDb[i].LocalInterface == topology[j].Interfaces[k].Name) {
+					if isisNeighboursDb[i].LocalInterface == topology[j].Interfaces[k].Name {
 						// Check interface name is equal to the local interface in neighbour
 						topology[j].Interfaces[k].IsisNeighbours = append(topology[j].Interfaces[k].IsisNeighbours,
 							model.IsisNeighbor{
-								IPv4:isisNeighboursDb[i].NeighbourIp,
+								IPv4: isisNeighboursDb[i].NeighbourIp,
 							})
 					}
 				}

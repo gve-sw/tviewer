@@ -2,16 +2,16 @@ package controller
 
 import (
 	"html/template"
+	"log"
 	"net/http"
+	"os"
+
+	"github.com/cisco-gve/tviewer/model"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	"github.com/cisco-gve/tviewer/model"
 	"gopkg.in/mgo.v2"
-	"os"
-	"log"
 )
 
-const basePath = "src/github.com/cisco-gve/tviewer"
 const ifSubscriptionID = "tviewerIFCS"
 const isisSubscriptionID = "tviewerISIS"
 const ifSensorGroupID = "tviewerInterfaces"
@@ -19,16 +19,19 @@ const isisSensorGroupID = "tviewerISISNeighbor"
 const sampleInterval = 2000
 
 var (
-	indexController index
-	homeController home
+	indexController    index
+	homeController     home
 	topologyController topology
-	devicesController devices
+	devicesController  devices
+	// BasePath stores the reference path for other controllers to look for files
+	BasePath string
 )
 
+// Startup initialates the server controllers
 func Startup(templates map[string]*template.Template, r *mux.Router) {
-	// Create cert directory if doesn't exist
 
-	_ = os.Mkdir(basePath + "/certs", os.ModePerm)
+	// Create cert directory if doesn't exist
+	_ = os.Mkdir(BasePath+"/certs", os.ModePerm)
 
 	// Create the channel
 	telemetryChan := make(chan model.TelemetryWrapper)
@@ -71,7 +74,7 @@ func Startup(templates map[string]*template.Template, r *mux.Router) {
 	for _, device := range devices {
 		n := Node{}
 		n.Ip = device.Ip
-		n.CertName = basePath + "/certs/" + device.Name + ".pem"
+		n.CertName = BasePath + "/certs/" + device.Name + ".pem"
 		n.Name = device.Name
 		n.Username = device.Username
 		n.Password = device.Password
@@ -82,11 +85,9 @@ func Startup(templates map[string]*template.Template, r *mux.Router) {
 		go n.watchForOldData(telemetryChan)
 	}
 
-
 	// Start listening for collection
 	go topologyController.watchTopologyChanges(telemetryChan)
 
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(basePath + "/public")))
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(BasePath + "/public")))
 
 }
-
